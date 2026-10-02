@@ -1,0 +1,1244 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Código Morado—Chicas programando un futuro</title>
+ 
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+ 
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin=""/>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
+ 
+<style>
+/* =========================================================
+   VARIABLES DE COLOR — MODO CLARO (por defecto)
+   ========================================================= */
+:root{
+  --papel: #fdfaf5;
+  --papel-alt: #ffffff;
+  --tarjeta: #ffffff;
+  --texto: #2c1b3d;
+  --texto-suave: #5c4a6e;
+  --borde: #e9ddf2;
+  --violeta: #7c3aed;
+  --violeta-fuerte: #5b21b6;
+  --magenta: #c026d3;
+  --rosa: #ec4899;
+  --rosa-suave: #fce7f3;
+  --violeta-suave: #f1e7fd;
+  --acento-bg: #f6f1fb;
+  --gradiente: linear-gradient(135deg, #7c3aed 0%, #c026d3 55%, #ec4899 100%);
+  --gradiente-suave: linear-gradient(135deg, #f1e7fd 0%, #fce7f3 100%);
+  --sombra: 0 10px 30px rgba(124, 58, 237, 0.12);
+  --sombra-fuerte: 0 16px 40px rgba(124, 58, 237, 0.22);
+  --code-bg: #2c1b3d;
+  --code-text: #f1e7fd;
+  --verde-real: #16a34a;
+  --rojo-mito: #dc2626;
+}
+ 
+.dark{
+  --papel: #1a1027;
+  --papel-alt: #221533;
+  --tarjeta: #241832;
+  --texto: #f3e8ff;
+  --texto-suave: #c9b8de;
+  --borde: #3a2a4d;
+  --violeta: #a78bfa;
+  --violeta-fuerte: #c4b5fd;
+  --magenta: #e879f9;
+  --rosa: #f472b6;
+  --rosa-suave: #3a1f3d;
+  --violeta-suave: #2b1d40;
+  --acento-bg: #221533;
+  --gradiente: linear-gradient(135deg, #7c3aed 0%, #c026d3 55%, #ec4899 100%);
+  --gradiente-suave: linear-gradient(135deg, #2b1d40 0%, #3a1f3d 100%);
+  --sombra: 0 10px 30px rgba(0, 0, 0, 0.35);
+  --sombra-fuerte: 0 16px 40px rgba(0, 0, 0, 0.5);
+  --code-bg: #120a1c;
+  --code-text: #e9d8ff;
+  --verde-real: #4ade80;
+  --rojo-mito: #f87171;
+}
+ 
+*{ box-sizing: border-box; }
+html{ scroll-behavior: smooth; }
+ 
+body{
+  margin:0;
+  background: var(--papel);
+  color: var(--texto);
+  font-family: 'Inter', sans-serif;
+  transition: background .3s ease, color .3s ease;
+  overflow-x: hidden;
+}
+ 
+h1,h2,h3,h4, .titulo-display{
+  font-family: 'Baloo 2', sans-serif;
+  color: var(--texto);
+  margin: 0;
+}
+ 
+p{ line-height: 1.65; color: var(--texto-suave); }
+ 
+a{ color: var(--violeta); }
+ 
+img{ max-width: 100%; }
+ 
+.contenedor{
+  max-width: 1180px;
+  margin: 0 auto;
+  padding: 0 24px;
+}
+ 
+.pastilla{
+  display:inline-flex;
+  align-items:center;
+  gap:8px;
+  font-family:'Baloo 2', sans-serif;
+  font-weight:600;
+  font-size: .85rem;
+  padding: 6px 16px;
+  border-radius: 999px;
+  background: var(--violeta-suave);
+  color: var(--violeta-fuerte);
+  border: 1px solid var(--borde);
+}
+ 
+.simbolo-flotante{
+  position:absolute;
+  font-family:'Baloo 2', sans-serif;
+  font-weight:700;
+  color: var(--violeta);
+  opacity: .16;
+  user-select:none;
+  pointer-events:none;
+}
+ 
+/* =========================================================
+   NAVBAR
+   ========================================================= */
+.navbar{
+  position: sticky;
+  top: 0;
+  z-index: 500;
+  background: color-mix(in srgb, var(--papel) 88%, transparent);
+  backdrop-filter: blur(10px);
+  border-bottom: 1px solid var(--borde);
+}
+.navbar-interior{
+  max-width: 1180px;
+  margin: 0 auto;
+  padding: 14px 24px;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap: 16px;
+}
+.logo{
+  display:flex;
+  align-items:center;
+  gap:10px;
+  font-family:'Baloo 2', sans-serif;
+  font-weight:800;
+  font-size:1.3rem;
+  text-decoration:none;
+  color: var(--texto);
+}
+.logo-icono{
+  width: 38px; height: 38px;
+  border-radius: 11px;
+  background: var(--gradiente);
+  display:flex;align-items:center;justify-content:center;
+  color:#fff;
+  font-family:'Baloo 2', sans-serif;
+  font-weight:800;
+  flex-shrink:0;
+}
+.nav-links{
+  display:flex;
+  gap: 6px;
+  list-style:none;
+  margin:0; padding:0;
+}
+.nav-links a{
+  text-decoration:none;
+  color: var(--texto-suave);
+  font-weight:600;
+  font-size: .95rem;
+  padding: 8px 14px;
+  border-radius: 999px;
+  transition: background .2s ease, color .2s ease;
+  white-space:nowrap;
+}
+.nav-links a:hover{
+  background: var(--violeta-suave);
+  color: var(--violeta-fuerte);
+}
+.nav-derecha{ display:flex; align-items:center; gap:12px; }
+ 
+.boton-tema{
+  width: 44px; height: 44px;
+  border-radius: 50%;
+  border: 1px solid var(--borde);
+  background: var(--tarjeta);
+  cursor:pointer;
+  font-size: 1.2rem;
+  display:flex;align-items:center;justify-content:center;
+  transition: transform .25s ease, box-shadow .25s ease;
+  box-shadow: var(--sombra);
+}
+.boton-tema:hover{ transform: rotate(15deg) scale(1.06); }
+ 
+.menu-hamburguesa{
+  display:none;
+  width: 44px; height: 44px;
+  border-radius: 12px;
+  border: 1px solid var(--borde);
+  background: var(--tarjeta);
+  cursor:pointer;
+  font-size: 1.3rem;
+  align-items:center;justify-content:center;
+}
+ 
+/* =========================================================
+   BOTONES GENERALES
+   ========================================================= */
+.btn{
+  font-family:'Baloo 2', sans-serif;
+  font-weight: 700;
+  font-size: 1rem;
+  padding: 14px 28px;
+  border-radius: 16px;
+  border: none;
+  cursor:pointer;
+  text-decoration:none;
+  display:inline-flex;
+  align-items:center;
+  gap: 10px;
+  transition: transform .2s ease, box-shadow .2s ease;
+}
+.btn-primario{
+  background: var(--gradiente);
+  color: #fff;
+  box-shadow: var(--sombra-fuerte);
+}
+.btn-primario:hover{ transform: translateY(-3px); }
+.btn-secundario{
+  background: var(--tarjeta);
+  color: var(--violeta-fuerte);
+  border: 2px solid var(--violeta);
+}
+.btn-secundario:hover{ background: var(--violeta-suave); transform: translateY(-3px); }
+ 
+/* =========================================================
+   HERO
+   ========================================================= */
+.hero{
+  position: relative;
+  padding: 90px 24px 80px;
+  overflow:hidden;
+}
+.hero-grid{
+  max-width: 1180px;
+  margin: 0 auto;
+  display:grid;
+  grid-template-columns: 1.05fr .95fr;
+  gap: 56px;
+  align-items:center;
+  position:relative;
+  z-index:2;
+}
+.hero h1.titulo-display{
+  font-size: clamp(2.6rem, 5.5vw, 4.2rem);
+  line-height: 1.05;
+  background: var(--gradiente);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  margin: 18px 0 8px;
+}
+.hero .subtitulo-hero{
+  font-family:'Baloo 2', sans-serif;
+  font-size: 1.4rem;
+  font-weight:600;
+  color: var(--texto);
+  margin-bottom: 18px;
+}
+.hero p.parrafo-hero{
+  font-size: 1.08rem;
+  max-width: 540px;
+}
+.hero-cta{
+  display:flex;
+  gap: 14px;
+  margin-top: 30px;
+  flex-wrap:wrap;
+}
+.hero-cierre{
+  margin-top: 26px;
+  padding: 16px 20px;
+  border-radius: 16px;
+  background: var(--rosa-suave);
+  border-left: 4px solid var(--rosa);
+  font-weight:600;
+  color: var(--texto);
+  max-width: 540px;
+}
+ 
+.codigo-visual{
+  background: var(--code-bg);
+  border-radius: 22px;
+  box-shadow: var(--sombra-fuerte);
+  overflow:hidden;
+  transform: rotate(-2deg);
+  border: 1px solid rgba(255,255,255,.08);
+}
+.codigo-barra{
+  display:flex;
+  gap:8px;
+  padding: 14px 18px;
+  background: rgba(255,255,255,.05);
+}
+.codigo-barra span{ width:12px; height:12px; border-radius:50%; display:block; }
+.codigo-barra span:nth-child(1){ background:#f87171; }
+.codigo-barra span:nth-child(2){ background:#facc15; }
+.codigo-barra span:nth-child(3){ background:#4ade80; }
+.codigo-cuerpo{
+  padding: 22px 24px 28px;
+  font-family: 'Baloo 2', monospace, sans-serif;
+  font-size: .95rem;
+  line-height:2;
+  color: var(--code-text);
+}
+.codigo-cuerpo .cm{ color:#f0abfc; }
+.codigo-cuerpo .cv{ color:#93c5fd; }
+.codigo-cuerpo .cs{ color:#86efac; }
+.codigo-cuerpo .cc{ color:#a78bfa; }
+.codigo-cuerpo .indent{ padding-left: 22px; }
+ 
+.hero-blob{
+  position:absolute;
+  width: 520px; height: 520px;
+  border-radius: 50%;
+  background: var(--gradiente);
+  filter: blur(90px);
+  opacity: .25;
+  top: -180px;
+  right: -160px;
+  z-index:1;
+}
+ 
+/* =========================================================
+   SECCIONES GENERALES
+   ========================================================= */
+section{ padding: 90px 24px; position:relative; }
+.encabezado-seccion{
+  max-width: 700px;
+  margin: 0 auto 52px;
+  text-align:center;
+}
+.encabezado-seccion h2{
+  font-size: clamp(1.9rem, 3.6vw, 2.6rem);
+  margin: 12px 0 14px;
+}
+.encabezado-seccion p{ font-size: 1.08rem; }
+.franja-alterna{ background: var(--acento-bg); }
+ 
+/* =========================================================
+   SECCION 1 — TECH SIMPLE
+   ========================================================= */
+.ruta-aprendizaje{
+  display:flex;
+  justify-content:center;
+  gap: 10px;
+  flex-wrap:wrap;
+  margin-bottom: 46px;
+}
+.ruta-paso{
+  display:flex;
+  align-items:center;
+  gap: 10px;
+  padding: 10px 20px;
+  border-radius: 999px;
+  background: var(--tarjeta);
+  border: 1px solid var(--borde);
+  font-family:'Baloo 2', sans-serif;
+  font-weight:600;
+  font-size: .95rem;
+}
+.ruta-paso .num{
+  width: 26px; height:26px;
+  border-radius:50%;
+  background: var(--gradiente);
+  color:#fff;
+  display:flex;align-items:center;justify-content:center;
+  font-size:.8rem;
+}
+.ruta-flecha{ color: var(--violeta); font-weight:700; align-self:center; }
+ 
+.grupo-nivel{ margin-bottom: 54px; }
+.grupo-nivel h3{
+  font-size: 1.3rem;
+  margin-bottom: 20px;
+  display:flex;
+  align-items:center;
+  gap:10px;
+}
+.grupo-nivel h3 .num-nivel{
+  width:32px;height:32px;border-radius:10px;
+  background: var(--gradiente);
+  color:#fff;
+  display:flex;align-items:center;justify-content:center;
+  font-size:.95rem;
+  flex-shrink:0;
+}
+ 
+.grilla-conceptos{
+  display:grid;
+  grid-template-columns: repeat(auto-fill, minmax(270px, 1fr));
+  gap: 20px;
+}
+.tarjeta-concepto{
+  background: var(--tarjeta);
+  border: 1px solid var(--borde);
+  border-radius: 20px;
+  padding: 22px;
+  cursor:pointer;
+  box-shadow: var(--sombra);
+  transition: transform .2s ease, box-shadow .2s ease;
+  min-height: 190px;
+}
+.tarjeta-concepto:hover{ transform: translateY(-4px); box-shadow: var(--sombra-fuerte); }
+.tc-simbolo{
+  font-family:'Baloo 2', sans-serif;
+  font-weight:800;
+  font-size:1.4rem;
+  color: var(--rosa);
+  margin-bottom: 10px;
+}
+.tc-titulo{ font-size: 1.08rem; margin-bottom: 8px; }
+.tc-pregunta{ font-size: .92rem; color: var(--texto-suave); }
+.tc-respuesta{ display:none; font-size:.92rem; margin-top: 10px; }
+.tc-respuesta strong{ color: var(--violeta-fuerte); }
+.tc-analogia{
+  margin-top: 10px;
+  padding: 10px 12px;
+  background: var(--violeta-suave);
+  border-radius: 12px;
+  font-size: .85rem;
+  color: var(--texto);
+}
+.tc-indicador{
+  margin-top: 12px;
+  font-size: .8rem;
+  font-weight:600;
+  color: var(--magenta);
+}
+.tarjeta-concepto.abierta .tc-respuesta{ display:block; }
+.tarjeta-concepto.abierta .tc-pregunta{ display:none; }
+ 
+/* =========================================================
+   SECCION 2 — MAPA TECH
+   ========================================================= */
+.grilla-areas{
+  display:grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 22px;
+}
+.tarjeta-area{
+  background: var(--tarjeta);
+  border: 1px solid var(--borde);
+  border-radius: 22px;
+  padding: 26px;
+  box-shadow: var(--sombra);
+}
+.ta-encabezado{
+  display:flex;
+  align-items:center;
+  gap: 14px;
+  margin-bottom: 16px;
+}
+.ta-icono{
+  width: 50px;height:50px;
+  border-radius: 16px;
+  background: var(--gradiente-suave);
+  display:flex;align-items:center;justify-content:center;
+  font-size: 1.4rem;
+  flex-shrink:0;
+}
+.ta-encabezado h3{ font-size: 1.15rem; }
+.lista-roles{ list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:8px; }
+.lista-roles li{
+  font-size: .92rem;
+  color: var(--texto-suave);
+  padding-left: 18px;
+  position:relative;
+}
+.lista-roles li::before{
+  content:"</>";
+  position:absolute; left:0;
+  color: var(--rosa);
+  font-size:.72rem;
+  font-family:'Baloo 2', sans-serif;
+  top:3px;
+}
+ 
+/* =========================================================
+   SECCION 3 — MITOS
+   ========================================================= */
+.grilla-mitos{
+  display:grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 20px;
+}
+.tarjeta-mito{
+  background: var(--tarjeta);
+  border: 1px solid var(--borde);
+  border-radius: 20px;
+  padding: 4px;
+  box-shadow: var(--sombra);
+  min-height: 210px;
+  perspective: 1200px;
+  cursor:pointer;
+}
+.mito-interior{
+  position:relative;
+  width:100%; height:100%;
+  min-height: 202px;
+  transform-style: preserve-3d;
+  transition: transform .55s cubic-bezier(.4,.2,.2,1);
+}
+.tarjeta-mito.girada .mito-interior{ transform: rotateY(180deg); }
+.mito-cara{
+  position:absolute; inset:0;
+  backface-visibility: hidden;
+  border-radius: 16px;
+  padding: 22px;
+  display:flex;
+  flex-direction:column;
+  justify-content:center;
+}
+.mito-frente{ background: var(--gradiente-suave); }
+.mito-frente .mf-etiqueta{
+  font-family:'Baloo 2', sans-serif;
+  font-weight:700;
+  font-size: .78rem;
+  color: var(--violeta-fuerte);
+  margin-bottom: 10px;
+}
+.mito-frente p{ color: var(--texto); font-weight:600; font-size:1rem; }
+.mito-toque{ margin-top:14px; font-size:.8rem; color: var(--texto-suave); }
+.mito-trasera{
+  transform: rotateY(180deg);
+  background: var(--tarjeta);
+  border: 2px solid var(--borde);
+}
+.mito-veredicto{
+  display:inline-flex;
+  align-items:center;
+  gap:8px;
+  font-family:'Baloo 2', sans-serif;
+  font-weight:700;
+  font-size: .95rem;
+  padding: 6px 14px;
+  border-radius: 999px;
+  margin-bottom: 10px;
+  width: fit-content;
+}
+.veredicto-mito{ background: color-mix(in srgb, var(--rojo-mito) 15%, transparent); color: var(--rojo-mito); }
+.veredicto-real{ background: color-mix(in srgb, var(--verde-real) 15%, transparent); color: var(--verde-real); }
+.mito-trasera p{ font-size: .9rem; }
+ 
+/* =========================================================
+   SECCION 4 — UNIVERSIDADES
+   ========================================================= */
+.uni-layout{
+  display:grid;
+  grid-template-columns: 380px 1fr;
+  gap: 26px;
+  align-items:start;
+}
+.uni-panel{
+  background: var(--tarjeta);
+  border: 1px solid var(--borde);
+  border-radius: 22px;
+  padding: 20px;
+  box-shadow: var(--sombra);
+  max-height: 620px;
+  display:flex;
+  flex-direction:column;
+}
+.uni-filtros{
+  display:flex;
+  gap: 8px;
+  margin-bottom: 14px;
+  flex-wrap:wrap;
+}
+.filtro-chip{
+  font-family:'Inter', sans-serif;
+  font-size: .82rem;
+  font-weight:600;
+  padding: 7px 14px;
+  border-radius: 999px;
+  border: 1px solid var(--borde);
+  background: var(--acento-bg);
+  color: var(--texto-suave);
+  cursor:pointer;
+}
+.filtro-chip.activo{ background: var(--gradiente); color:#fff; border-color:transparent; }
+.uni-buscador{
+  width:100%;
+  padding: 11px 14px;
+  border-radius: 12px;
+  border: 1px solid var(--borde);
+  background: var(--acento-bg);
+  color: var(--texto);
+  font-family:'Inter', sans-serif;
+  margin-bottom: 12px;
+}
+.uni-lista{
+  overflow-y:auto;
+  display:flex;
+  flex-direction:column;
+  gap: 8px;
+  padding-right: 4px;
+}
+.uni-item{
+  text-align:left;
+  padding: 11px 14px;
+  border-radius: 14px;
+  border: 1px solid var(--borde);
+  background: var(--acento-bg);
+  cursor:pointer;
+  font-family:'Inter', sans-serif;
+}
+.uni-item:hover, .uni-item.activo{ background: var(--violeta-suave); border-color: var(--violeta); }
+.uni-item .ui-nombre{ font-weight:700; font-size:.9rem; display:block; margin-bottom:3px; color:var(--texto); }
+.uni-item .ui-meta{ font-size:.76rem; color: var(--texto-suave); }
+.tag-tipo{
+  display:inline-block;
+  font-size:.68rem;
+  font-weight:700;
+  padding: 2px 8px;
+  border-radius:999px;
+  margin-right:6px;
+}
+.tag-publica{ background: color-mix(in srgb, var(--verde-real) 18%, transparent); color: var(--verde-real); }
+.tag-privada{ background: color-mix(in srgb, var(--rosa) 18%, transparent); color: var(--rosa); }
+ 
+#mapa-universidades{
+  height: 620px;
+  border-radius: 22px;
+  box-shadow: var(--sombra);
+  border: 1px solid var(--borde);
+  z-index: 1;
+}
+ 
+/* =========================================================
+   SECCION 5 — RECURSERO
+   ========================================================= */
+.grilla-recursos{
+  display:grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 20px;
+}
+.tarjeta-recurso{
+  display:flex;
+  flex-direction:column;
+  gap: 12px;
+  background: var(--tarjeta);
+  border: 1px solid var(--borde);
+  border-radius: 20px;
+  padding: 22px;
+  text-decoration:none;
+  box-shadow: var(--sombra);
+  transition: transform .2s ease, box-shadow .2s ease;
+}
+.tarjeta-recurso:hover{ transform: translateY(-4px); box-shadow: var(--sombra-fuerte); }
+.tr-icono{
+  width:46px;height:46px;
+  border-radius:14px;
+  background: var(--gradiente);
+  color:#fff;
+  display:flex;align-items:center;justify-content:center;
+  font-family:'Baloo 2', sans-serif;
+  font-weight:800;
+}
+.tr-nombre{ font-family:'Baloo 2', sans-serif; font-weight:700; font-size:1.02rem; color:var(--texto); }
+.tr-link{ font-size: .82rem; color: var(--magenta); font-weight:600; }
+ 
+/* =========================================================
+   FOOTER
+   ========================================================= */
+footer{
+  background: var(--code-bg);
+  color: var(--code-text);
+  padding: 50px 24px 30px;
+  text-align:center;
+}
+footer .logo{ color:#fff; justify-content:center; }
+footer p{ color: #c9b8de; max-width:520px; margin: 14px auto 0; font-size:.92rem; }
+.footer-simbolos{ margin-top: 20px; font-family:'Baloo 2',sans-serif; letter-spacing: 6px; color: var(--rosa); opacity:.7; }
+ 
+/* =========================================================
+   RESPONSIVE
+   ========================================================= */
+@media (max-width: 900px){
+  .hero-grid{ grid-template-columns: 1fr; }
+  .codigo-visual{ transform: none; }
+  .uni-layout{ grid-template-columns: 1fr; }
+  #mapa-universidades{ height: 420px; }
+  .uni-panel{ max-height: none; }
+  .uni-lista{ max-height: 320px; }
+}
+@media (max-width: 780px){
+  .nav-links{
+    position:fixed;
+    top: 70px; left:0; right:0;
+    background: var(--papel);
+    flex-direction:column;
+    padding: 14px 24px 24px;
+    border-bottom: 1px solid var(--borde);
+    display:none;
+    gap: 4px;
+  }
+  .nav-links.abierto{ display:flex; }
+  .nav-links a{ padding: 12px 14px; }
+  .menu-hamburguesa{ display:flex; }
+  section{ padding: 64px 18px; }
+}
+@media (max-width: 480px){
+  .hero{ padding: 60px 18px 56px; }
+  .ruta-aprendizaje{ gap:6px; }
+}
+ 
+/* Foco visible para accesibilidad */
+a:focus-visible, button:focus-visible, input:focus-visible{
+  outline: 3px solid var(--rosa);
+  outline-offset: 2px;
+}
+@media (prefers-reduced-motion: reduce){
+  *{ animation:none !important; transition:none !important; }
+}
+</style>
+</head>
+<body>
+     
+<!-- ============ NAVBAR ============ -->
+<nav class="navbar">
+  <div class="navbar-interior">
+    <a href="#inicio" class="logo">
+      <span class="logo-icono">&lt;/&gt;</span>
+      Código Morado
+    </a>
+    <ul class="nav-links" id="navLinks">
+      <li><a href="#tech-simple">Tech Simple</a></li>
+      <li><a href="#mapa-tech">Mapa Tech</a></li>
+      <li><a href="#mitos">Mitos</a></li>
+      <li><a href="#universidades">Universidades</a></li>
+      <li><a href="#recursero">Recursero</a></li>
+    </ul>
+    <div class="nav-derecha">
+      <button class="boton-tema" id="botonTema" aria-label="Cambiar entre modo día y modo noche" title="Cambiar tema">☀️</button>
+      <button class="menu-hamburguesa" id="menuHamburguesa" aria-label="Abrir menú">☰</button>
+    </div>
+  </div>
+</nav>
+ 
+<!-- ============ HERO ============ -->
+<header class="hero" id="inicio">
+  <div class="hero-blob"></div>
+  <span class="simbolo-flotante" style="font-size:3rem; top:12%; left:4%;">{ }</span>
+  <span class="simbolo-flotante" style="font-size:2.2rem; top:70%; left:8%;">==</span>
+  <span class="simbolo-flotante" style="font-size:2.6rem; top:20%; right:6%;">+</span>
+  <div class="hero-grid">
+    <div>
+      <span class="pastilla">💜 Un espacio para empezar de cero</span>
+      <h1 class="titulo-display">Código Morado</h1>
+      <p class="subtitulo-hero">Chicas programando un futuro</p>
+      <p class="parrafo-hero">La tecnología no es un club exclusivo para quienes ya saben programar. Es un mundo enorme para explorar, crear, preguntar, equivocarse y aprender. Podés empezar desde cero.</p>
+      <div class="hero-cta">
+        <a href="#tech-simple" class="btn btn-primario">Empezar a explorar →</a>
+        <a href="#universidades" class="btn btn-secundario">Ver carreras</a>
+      </div>
+      <div class="hero-cierre">
+        ✨ No saber programar hoy no te deja afuera de nada: es simplemente el punto de partida. Todas las personas que programan alguna vez no supieron cómo empezar.
+      </div>
+    </div>
+     <div class="codigo-visual">
+      <div class="codigo-barra"><span></span><span></span><span></span></div>
+      <div class="codigo-cuerpo">
+        <div><span class="cc">función</span> <span class="cs">miFuturo</span>() 
+        <div class="indent"><span class="cm">let</span> <span class="cv">ganas</span> = <span class="cs">"muchas"</span>;</div>
+        <div class="indent"><span class="cm">let</span> <span class="cv">experiencia</span> = <span class="cs">"cero"</span>;</div>
+        <div class="indent"></div>
+        <div class="indent"><span class="cm">si</span> (ganas === <span class="cs">"muchas"</span>) {</div>
+        <div class="indent" style="padding-left:44px;"><span class="cm">devolver</span> <span class="cs">"¡vamos!"</span>;</div>
+        <div>}</div>
+      </div>
+    </div>
+  </div>
+</header>
+ 
+<!-- ============ SECCION 1: TECH SIMPLE ============ -->
+<section id="tech-simple">
+  <div class="contenedor">
+    <div class="encabezado-seccion">
+      <span class="pastilla">🧠 Tech Simple</span>
+      <h2>Tecnología sin palabras difíciles</h2>
+      <p>Conceptos que parecen enormes cuando los escuchás por primera vez, explicados con ejemplos cotidianos y fáciles de recordar.</p>
+    </div>
+ 
+    <div class="ruta-aprendizaje">
+      <div class="ruta-paso"><span class="num">1</span> Entender</div>
+      <span class="ruta-flecha">→</span>
+      <div class="ruta-paso"><span class="num">2</span> Reconocer</div>
+      <span class="ruta-flecha">→</span>
+      <div class="ruta-paso"><span class="num">3</span> Empezar a programar</div>
+    </div>
+ 
+    <div class="grupo-nivel">
+      <h3><span class="num-nivel">1</span> Entender: las bases</h3>
+      <div class="grilla-conceptos" id="nivel1"></div>
+    </div>
+    <div class="grupo-nivel">
+      <h3><span class="num-nivel">2</span> Reconocer: las piezas del código</h3>
+      <div class="grilla-conceptos" id="nivel2"></div>
+    </div>
+    <div class="grupo-nivel">
+      <h3><span class="num-nivel">3</span> Empezar a programar</h3>
+      <div class="grilla-conceptos" id="nivel3"></div>
+    </div>
+  </div>
+</section>
+ 
+<!-- ============ SECCION 2: MAPA TECH ============ -->
+<section id="mapa-tech" class="franja-alterna">
+  <div class="contenedor">
+    <div class="encabezado-seccion">
+      <span class="pastilla">🗺️ Mapa Tech</span>
+      <h2>La tecnología es mucho más que programar</h2>
+      <p>Programar es una puerta de entrada, pero adentro hay un montón de caminos distintos. Diseño, datos, seguridad, gestión de proyectos, inteligencia artificial y muchísimo más: acá tenés un mapa de las áreas principales y los roles que existen en cada una.</p>
+    </div>
+    <div class="grilla-areas" id="grillaAreas"></div>
+  </div>
+</section>
+ 
+<!-- ============ SECCION 3: MITOS ============ -->
+<section id="mitos">
+  <div class="contenedor">
+    <div class="encabezado-seccion">
+      <span class="pastilla">🔍 Mitos Tecnológicos</span>
+      <h2>¿Mito o realidad?</h2>
+      <p>El mundo de la programación está lleno de frases que se repiten tanto que parecen verdaderas. Tocá cada tarjeta para descubrir qué hay de cierto.</p>
+    </div>
+    <div class="grilla-mitos" id="grillaMitos"></div>
+  </div>
+</section>
+ 
+<!-- ============ SECCION 4: UNIVERSIDADES ============ -->
+<section id="universidades" class="franja-alterna">
+  <div class="contenedor">
+    <div class="encabezado-seccion">
+      <span class="pastilla">🎓 Universidades</span>
+      <h2>Carreras en tecnología cerca tuyo</h2>
+      <p>56 instituciones públicas y privadas con propuestas en tecnología. Buscá, filtrá y tocá una universidad para ubicarla en el mapa.</p>
+    </div>
+    <div class="uni-layout">
+      <div class="uni-panel">
+        <input type="text" class="uni-buscador" id="buscadorUni" placeholder="Buscar universidad...">
+        <div class="uni-filtros">
+          <button class="filtro-chip activo" data-filtro="Todas">Todas</button>
+          <button class="filtro-chip" data-filtro="Pública">Públicas</button>
+          <button class="filtro-chip" data-filtro="Privada">Privadas</button>
+        </div>
+        <div class="uni-lista" id="listaUniversidades"></div>
+      </div>
+      <div id="mapa-universidades"></div>
+    </div>
+  </div>
+</section>
+ 
+<!-- ============ SECCION 5: RECURSERO ============ -->
+<section id="recursero">
+  <div class="contenedor">
+    <div class="encabezado-seccion">
+      <span class="pastilla">📚 Recursero digital</span>
+      <h2>Seguí aprendiendo, gratis</h2>
+      <p>Cursos, capacitaciones y programas gratuitos para dar el siguiente paso. Tocá cualquier tarjeta para ir directamente al sitio.</p>
+    </div>
+    <div class="grilla-recursos" id="grillaRecursos"></div>
+  </div>
+</section>
+ 
+<!-- ============ FOOTER ============ -->
+<footer>
+  <a href="#inicio" class="logo"><span class="logo-icono">&lt;/&gt;</span>Código Morado</a>
+  <p>Un espacio pensado para adolescentes que están dando sus primeros pasos en programación. Explorar, equivocarse y volver a intentar también es programar.</p>
+  <div class="footer-simbolos">{ } == +  -  &lt;/&gt;</div>
+</footer>
+ 
+<script>
+/* =========================================================
+   MODO DÍA / MODO NOCHE
+   ========================================================= */
+const botonTema = document.getElementById('botonTema');
+const raiz = document.documentElement;
+ 
+function aplicarTema(modo){
+  if(modo === 'oscuro'){
+    raiz.classList.add('dark');
+    botonTema.textContent = '🌙';
+  } else {
+    raiz.classList.remove('dark');
+    botonTema.textContent = '☀️';
+  }
+}
+ 
+let temaGuardado = null;
+try{ temaGuardado = localStorage.getItem('codigo-morado-tema'); }catch(e){}
+ 
+if(temaGuardado){
+  aplicarTema(temaGuardado);
+} else {
+  const prefiereOscuro = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+  aplicarTema(prefiereOscuro ? 'oscuro' : 'claro');
+}
+ 
+botonTema.addEventListener('click', () => {
+  const esOscuroAhora = raiz.classList.contains('dark');
+  const nuevoModo = esOscuroAhora ? 'claro' : 'oscuro';
+  aplicarTema(nuevoModo);
+  try{ localStorage.setItem('codigo-morado-tema', nuevoModo); }catch(e){}
+});
+ 
+/* =========================================================
+   MENÚ MÓVIL
+   ========================================================= */
+const menuHamburguesa = document.getElementById('menuHamburguesa');
+const navLinks = document.getElementById('navLinks');
+menuHamburguesa.addEventListener('click', () => navLinks.classList.toggle('abierto'));
+navLinks.querySelectorAll('a').forEach(a => a.addEventListener('click', () => navLinks.classList.remove('abierto')));
+ 
+/* =========================================================
+   SECCION 1: CONCEPTOS TECH SIMPLE
+   ========================================================= */
+const conceptos = {
+  nivel1: [
+    { simbolo:'IA', titulo:'¿Qué es la Inteligencia Artificial?', pregunta:'¿Cómo puede "pensar" una computadora?', respuesta:'La IA es un conjunto de programas entrenados con muchísimos datos para reconocer patrones y tomar decisiones, como recomendar una canción o traducir un texto.', analogia:'🍳 Es como una cocinera que probó miles de recetas y ahora puede sugerirte una nueva combinación sin que nadie se la haya dictado paso a paso.' },
+    { simbolo:'{ }', titulo:'¿Qué es programación?', pregunta:'¿En qué consiste realmente "programar"?', respuesta:'La programación es el proceso de escribir instrucciones que una computadora pueda entender y ejecutar para resolver un problema o crear algo.', analogia:'📖 Es como escribir una receta detallada para que alguien que no sabe cocinar pueda seguirla paso a paso sin equivocarse.' },
+    { simbolo:'&lt;/&gt;', titulo:'¿Qué es programar?', pregunta:'¿Qué hace exactamente una persona que programa?', respuesta:'Programar es traducir una idea o un problema en instrucciones concretas, ordenadas y sin ambigüedad, que la computadora pueda ejecutar.', analogia:'🧭 Es como darle indicaciones a alguien que camina en línea recta y solo entiende órdenes exactas: "girá 90°", no "girá un poco".' },
+    { simbolo:'JS', titulo:'¿Qué es un lenguaje de programación?', pregunta:'¿Por qué existen tantos "idiomas" para programar?', respuesta:'Es un sistema de reglas y palabras que permite escribir instrucciones que la computadora puede interpretar. Hay muchos (Python, JavaScript, etc.) igual que hay muchos idiomas humanos.', analogia:'🗣️ Es como elegir el idioma en el que le vas a hablar a alguien: cambia la forma, pero la idea que querés comunicar puede ser la misma.' },
+    { simbolo:'" "', titulo:'¿Qué es un prompt?', pregunta:'¿Cómo le "pido" algo bien a una IA?', respuesta:'Un prompt es la instrucción o pregunta que le escribís a una inteligencia artificial. Uno bueno es claro, específico, da contexto y dice qué resultado esperás.', analogia:'🎯 Es como pedir comida: "algo rico" da un resultado incierto, pero "una pizza mediana de muzzarella, sin aceitunas" es mucho más preciso.' },
+  ],
+  nivel2: [
+    { simbolo:'{ }', titulo:'¿Qué es un código?', pregunta:'¿Qué es realmente ese texto lleno de símbolos?', respuesta:'El código es el conjunto de instrucciones escritas en un lenguaje de programación que, juntas, forman un programa.', analogia:'🎼 Es como una partitura musical: cada símbolo no significa nada solo, pero juntos le indican a un instrumento (la computadora) qué "tocar".' },
+    { simbolo:'⇄', titulo:'¿Qué es un algoritmo?', pregunta:'¿Cómo se resuelve un problema paso a paso?', respuesta:'Un algoritmo es una secuencia ordenada de pasos para resolver un problema o cumplir una tarea, sin importar en qué lenguaje después se escriba.', analogia:'🧺 Es como los pasos para lavar la ropa: separar, cargar, elegir programa, esperar, colgar. El orden importa y siempre lleva al mismo resultado.' },
+    { simbolo:'x', titulo:'¿Qué es una variable?', pregunta:'¿Dónde "guarda" datos un programa?', respuesta:'Una variable es un espacio con nombre donde un programa guarda un dato para poder usarlo o cambiarlo más adelante.', analogia:'📦 Es como una caja etiquetada "edad": podés guardar un número adentro y cambiarlo cuando haga falta, sin cambiar la etiqueta.' },
+    { simbolo:'ƒ', titulo:'¿Qué es una función?', pregunta:'¿Cómo se evita repetir el mismo código?', respuesta:'Una función es un bloque de instrucciones reutilizable que recibe datos, hace algo con ellos y (a veces) devuelve un resultado.', analogia:'☕ Es como una máquina de café: le ponés agua y café (entrada), aprieta un botón, y siempre te da una taza (salida), las veces que quieras.' },
+    { simbolo:'#', titulo:'Tipos de datos', pregunta:'¿Todos los datos son iguales para una computadora?', respuesta:'No: los datos pueden ser números, texto, valores verdadero/falso, listas, etc. Cada tipo se comporta distinto dentro del código.', analogia:'🗂️ Es como ordenar un cajón: las medias van con las medias y las remeras con las remeras, aunque todo sea "ropa".' },
+    { simbolo:'DB', titulo:'¿Qué es una base de datos?', pregunta:'¿Dónde se guarda la información de una app?', respuesta:'Es un sistema organizado para almacenar, buscar y actualizar grandes cantidades de información de forma ordenada.', analogia:'🗄️ Es como un archivero gigante de una biblioteca: cada libro (dato) tiene su lugar exacto para poder encontrarlo rápido.' },
+    { simbolo:'🐞', titulo:'¿Qué es un bug?', pregunta:'¿Por qué a veces un programa "se rompe"?', respuesta:'Un bug es un error en el código que hace que el programa se comporte de forma distinta a la esperada.', analogia:'🧩 Es como una pieza de rompecabezas puesta al revés: el dibujo casi cierra, pero algo no encastra bien.' },
+    { simbolo:'✓', titulo:'¿Qué es depurar?', pregunta:'¿Cómo se soluciona un bug?', respuesta:'Depurar (o "debuggear") es el proceso de encontrar y corregir errores dentro de un programa.', analogia:'🔎 Es como revisar receta por receta cuando una torta no sale bien, hasta encontrar el paso que se hizo mal.' },
+  ],
+  nivel3: [
+    { simbolo:'+', titulo:'¿Qué son los operadores?', pregunta:'¿Cómo se hacen cuentas o comparaciones en el código?', respuesta:'Son símbolos que permiten hacer operaciones: sumar, restar, comparar si algo es igual, mayor o menor, etc.', analogia:'⚖️ Son como los signos de una balanza matemática: +, -, =, > te dicen qué operación o comparación se está haciendo.' },
+    { simbolo:'⇥', titulo:'Entrada y salida', pregunta:'¿Cómo "conversa" un programa con vos?', respuesta:'La entrada (input) es la información que le das a un programa; la salida (output) es lo que el programa te devuelve como resultado.', analogia:'🥤 Es como una licuadora: metés frutas (entrada) y obtenés un jugo (salida).' },
+    { simbolo:'?', titulo:'Condicionales', pregunta:'¿Cómo "decide" un programa qué hacer?', respuesta:'Son estructuras que permiten ejecutar distintas acciones según se cumpla o no una condición (si... entonces... si no...).', analogia:'☔ Es como decidir "si llueve, llevo paraguas; si no, no lo llevo". El programa evalúa la condición y actúa en consecuencia.' },
+    { simbolo:';', titulo:'¿Qué es la sintaxis?', pregunta:'¿Por qué el código a veces "no funciona" aunque la idea esté bien?', respuesta:'La sintaxis son las reglas de escritura de un lenguaje de programación: paréntesis, comas, punto y coma. Si no se respetan, el programa no entiende.', analogia:'✍️ Es como la ortografía y la gramática de un idioma: podés tener una idea genial, pero si la escribís mal, cuesta que se entienda.' },
+    { simbolo:'∴', titulo:'Lógica de programación', pregunta:'¿Qué hay "detrás" de todo código?', respuesta:'Es la forma de pensar y organizar la solución a un problema antes de escribir una sola línea de código: qué pasos seguir y en qué orden.', analogia:'🗺️ Es como planear un viaje antes de subirte al auto: primero pensás la ruta, después manejás.' },
+    { simbolo:'1·2·3', titulo:'¿Qué es una secuencia?', pregunta:'¿Importa el orden en que se ejecutan las instrucciones?', respuesta:'Sí: una secuencia es el orden específico en el que se ejecutan las instrucciones de un programa, una después de la otra.', analogia:'🥪 Es como armar un sándwich: si ponés la mermelada antes que el pan, el resultado cambia por completo.' },
+  ]
+};
+ 
+function crearTarjetaConcepto(c){
+  const div = document.createElement('div');
+  div.className = 'tarjeta-concepto';
+  div.innerHTML = `
+    <div class="tc-simbolo">${c.simbolo}</div>
+    <div class="tc-titulo">${c.titulo}</div>
+    <div class="tc-pregunta">${c.pregunta}</div>
+    <div class="tc-respuesta">
+      <p>${c.respuesta}</p>
+      <div class="tc-analogia">${c.analogia}</div>
+    </div>
+    <div class="tc-indicador">Tocá para descubrir la respuesta</div>
+  `;
+  const indicador = div.querySelector('.tc-indicador');
+  div.addEventListener('click', () => {
+    div.classList.toggle('abierta');
+    indicador.textContent = div.classList.contains('abierta') ? 'Tocá para cerrar' : 'Tocá para descubrir la respuesta';
+  });
+  return div;
+}
+ 
+['nivel1','nivel2','nivel3'].forEach(nivel => {
+  const cont = document.getElementById(nivel);
+  conceptos[nivel].forEach(c => cont.appendChild(crearTarjetaConcepto(c)));
+});
+ 
+/* =========================================================
+   SECCION 2: MAPA TECH (áreas y roles)
+   ========================================================= */
+const areasTech = [
+  { icono:'💻', nombre:'Desarrollo', roles:['Desarrollo Frontend','Desarrollo Backend','Desarrollo Full Stack','Desarrollo Mobile','Desarrollo de Videojuegos'] },
+  { icono:'🎨', nombre:'Diseño', roles:['UX Designer','UI Designer','Diseño de producto','Diseño gráfico digital','Investigación de usuarios (UX Research)'] },
+  { icono:'📊', nombre:'Datos', roles:['Analista de datos','Científica de datos (Data Scientist)','Ingeniería de datos','Business Intelligence'] },
+  { icono:'🤖', nombre:'Inteligencia Artificial', roles:['Machine Learning Engineer','Ingeniería de Prompts','Investigación en IA','Visión por computadora'] },
+  { icono:'🔒', nombre:'Ciberseguridad', roles:['Analista de seguridad','Hacking ético (pentesting)','Seguridad de la información','Respuesta a incidentes'] },
+  { icono:'🛠️', nombre:'Infraestructura y Redes', roles:['DevOps','Administración de servidores','Cloud Engineer','Redes y telecomunicaciones'] },
+  { icono:'🧪', nombre:'Calidad y Soporte', roles:['QA Tester','Automatización de pruebas','Soporte técnico','Atención a clientes técnica'] },
+  { icono:'📋', nombre:'Producto y Gestión', roles:['Product Manager','Scrum Master','Project Manager IT','Product Owner'] },
+];
+ 
+const grillaAreas = document.getElementById('grillaAreas');
+areasTech.forEach(area => {
+  const div = document.createElement('div');
+  div.className = 'tarjeta-area';
+  div.innerHTML = `
+    <div class="ta-encabezado">
+      <div class="ta-icono">${area.icono}</div>
+      <h3>${area.nombre}</h3>
+    </div>
+    <ul class="lista-roles">
+      ${area.roles.map(r => `<li>${r}</li>`).join('')}
+    </ul>
+  `;
+  grillaAreas.appendChild(div);
+});
+ 
+/* =========================================================
+   SECCION 3: MITOS
+   ========================================================= */
+const mitos = [
+  { frase:'Todas las programadoras empizan sabiendo que lenguaje usar.', esMito:true, explicacion:'Al comenzar es normal no saber que lenguaje usar, herramienta o camino a elegir. El aprendizaje incluye descubrir qué te interesa y qué herramientas sirven para cada problema.' },
+  { frase:'Si una aplicación funciona, significa que está bien programada.', esMito:true, explicacion:'Que una aplicacion funcione no significa necesariamente que este bien hecha. Puede funcionar y, al mismo tiempo, tener errores, problemas de seguridad o un rendimiento muy lento.' },
+  { frase:'Actualmente el ambiente tech sigue teniendo más varones que mujeres.', esMito:false, explicacion:'Es una realidad todavia vigente en muchos equipos, aunque esta cambiando gracias a comunidades, becas, iniciativas para achicar esa brecha.' },
+  { frase:'Para programar hace falta memorizar todos los comandos.', esMito:true, explicacion:'Incluso las programadoras con años de experiencia buscan sintaxis y funciones todo el tiempo. Entender la lógica importa mucho más que memorizar.' },
+  { frase:'Hay que estudiar sí o sí una carrera universitaria para trabajar en tecnología.', esMito:true, explicacion:'Existen bootcamps, cursos cortos y el autoaprendizaje como caminos válidos. La universidad es una opción más, no la única.' },
+  { frase:'Hay que saber inglés perfecto para programar.', esMito:true, explicacion:'Ayuda mucho reconocer palabras clave en inglés, pero no hace falta ser bilingüe: la mayoría del vocabulario técnico se aprende con la práctica.' },
+  { frase:'Existen muchísimas áreas dentro de la tecnología, no solo programar.', esMito:false, explicacion:'Diseño, datos, ciberseguridad, gestión de producto y soporte son solo algunos ejemplos de caminos posibles dentro del mundo tech.' },
+  { frase:'Si no entendiste un concepto la primera vez, "no servís" para esto.', esMito:true, explicacion:'Es normal necesitar varios intentos y explicaciones distintas para entender un concepto nuevo. No mide capacidad, mide que se está aprendiendo.' },
+  { frase:'Se puede empezar a programar gratis, sin comprar nada.', esMito:false, explicacion:'Hay muchísimos recursos gratuitos —como los que aparecen en el Recursero de esta página— para aprender sin gastar dinero.' },
+  { frase:'Una vez que programás bien, ya no hace falta seguir aprendiendo.', esMito:true, explicacion:'La tecnología cambia todo el tiempo: aprender cosas nuevas es parte constante del trabajo, sin importar la experiencia que se tenga.' },
+  { frase:'Usar Inteligencia Artificial para aprender a programar puede ser una herramienta más.', esMito:false, explicacion:'Usar IA como apoyo para entender conceptos o revisar errores es una herramienta más de aprendizaje, siempre que también se entienda lo que está pasando.' },
+];
+ 
+const grillaMitos = document.getElementById('grillaMitos');
+mitos.forEach(m => {
+  const div = document.createElement('div');
+  div.className = 'tarjeta-mito';
+  div.innerHTML = `
+    <div class="mito-interior">
+      <div class="mito-cara mito-frente">
+        <div class="mf-etiqueta">Afirmación</div>
+        <p>"${m.frase}"</p>
+        <div class="mito-toque">Tocá para revelar</div>
+      </div>
+      <div class="mito-cara mito-trasera">
+        <div class="mito-veredicto ${m.esMito ? 'veredicto-mito':'veredicto-real'}">${m.esMito ? '❌ Mito' : '✅ Realidad'}</div>
+        <p>${m.explicacion}</p>
+      </div>
+    </div>
+  `;
+  div.addEventListener('click', () => div.classList.toggle('girada'));
+  grillaMitos.appendChild(div);
+});
+ 
+/* =========================================================
+   SECCION 4: UNIVERSIDADES + MAPA LEAFLET
+   ========================================================= */
+const universidades = [
+  { nombre:'Universidad de Buenos Aires (UBA)', tipo:'Pública', zona:'CABA', lat:-34.6176, lng:-58.3680 },
+  { nombre:'Universidad Tecnológica Nacional – Facultad Regional Buenos Aires (UTN.BA)', tipo:'Pública', zona:'CABA', lat:-34.5988, lng:-58.4202 },
+  { nombre:'Universidad de la Ciudad de Buenos Aires', tipo:'Pública', zona:'CABA', lat:-34.6037, lng:-58.3816 },
+  { nombre:'Universidad Nacional de las Artes (UNA)', tipo:'Pública', zona:'CABA', lat:-34.6087, lng:-58.3896 },
+  { nombre:'Universidad Nacional de Madres de Plaza de Mayo', tipo:'Pública', zona:'CABA', lat:-34.6110, lng:-58.3820 },
+  { nombre:'Instituto Tecnológico de Buenos Aires (ITBA)', tipo:'Privada', zona:'CABA', lat:-34.6036, lng:-58.3771 },
+  { nombre:'Universidad Argentina de la Empresa (UADE)', tipo:'Privada', zona:'CABA', lat:-34.6095, lng:-58.4110 },
+  { nombre:'Universidad Abierta Interamericana (UAI)', tipo:'Privada', zona:'CABA', lat:-34.6250, lng:-58.3830 },
+  { nombre:'Universidad de Palermo (UP)', tipo:'Privada', zona:'CABA', lat:-34.5973, lng:-58.4161 },
+  { nombre:'Universidad de Belgrano (UB)', tipo:'Privada', zona:'CABA', lat:-34.5580, lng:-58.4530 },
+  { nombre:'Universidad CAECE', tipo:'Privada', zona:'CABA', lat:-34.6080, lng:-58.3760 },
+  { nombre:'Universidad del Salvador (USAL)', tipo:'Privada', zona:'CABA', lat:-34.5950, lng:-58.4070 },
+  { nombre:'Universidad de Flores (UFLO)', tipo:'Privada', zona:'CABA', lat:-34.6170, lng:-58.4300 },
+  { nombre:'Universidad de Ciencias Empresariales y Sociales (UCES)', tipo:'Privada', zona:'CABA', lat:-34.5980, lng:-58.4070 },
+  { nombre:'Universidad de la Marina Mercante (UdeMM)', tipo:'Privada', zona:'CABA', lat:-34.6120, lng:-58.3870 },
+  { nombre:'Universidad Argentina John F. Kennedy', tipo:'Privada', zona:'CABA / alrededores', lat:-34.6160, lng:-58.3920 },
+  { nombre:'Universidad Maimónides', tipo:'Privada', zona:'CABA', lat:-34.6040, lng:-58.4160 },
+  { nombre:'Universidad Favaloro', tipo:'Privada', zona:'CABA', lat:-34.6080, lng:-58.3860 },
+  { nombre:'Universidad ISALUD', tipo:'Privada', zona:'CABA', lat:-34.6090, lng:-58.3830 },
+  { nombre:'Universidad Torcuato Di Tella (UTDT)', tipo:'Privada', zona:'CABA', lat:-34.5450, lng:-58.4480 },
+  { nombre:'Universidad del CEMA (UCEMA)', tipo:'Privada', zona:'CABA', lat:-34.5980, lng:-58.3750 },
+  { nombre:'Universidad del Cine (FUC)', tipo:'Privada', zona:'CABA', lat:-34.5840, lng:-58.4260 },
+  { nombre:'Universidad Metropolitana para la Educación y el Trabajo (UMET)', tipo:'Privada', zona:'CABA', lat:-34.6040, lng:-58.4000 },
+  { nombre:'Universidad de San Isidro – Dr. Plácido Marín', tipo:'Privada', zona:'San Isidro', lat:-34.4680, lng:-58.5270 },
+  { nombre:'Universidad de San Andrés (UdeSA)', tipo:'Privada', zona:'Victoria, PBA', lat:-34.4110, lng:-58.6600 },
+  { nombre:'Universidad Austral', tipo:'Privada', zona:'Pilar / CABA', lat:-34.4350, lng:-58.8680 },
+  { nombre:'Universidad Nacional de Avellaneda (UNDAV)', tipo:'Pública', zona:'Avellaneda', lat:-34.6625, lng:-58.3650 },
+  { nombre:'Universidad Nacional Arturo Jauretche (UNAJ)', tipo:'Pública', zona:'Florencio Varela', lat:-34.7960, lng:-58.2770 },
+  { nombre:'Universidad Nacional de General Sarmiento (UNGS)', tipo:'Pública', zona:'Los Polvorines', lat:-34.5210, lng:-58.7000 },
+  { nombre:'Universidad Nacional de Hurlingham (UNAHUR)', tipo:'Pública', zona:'Hurlingham', lat:-34.6000, lng:-58.6370 },
+  { nombre:'Universidad Nacional de José C. Paz (UNPAZ)', tipo:'Pública', zona:'José C. Paz', lat:-34.5190, lng:-58.7580 },
+  { nombre:'Universidad Nacional de La Matanza (UNLaM)', tipo:'Pública', zona:'San Justo', lat:-34.6680, lng:-58.5620 },
+  { nombre:'Universidad Nacional de Lanús (UNLa)', tipo:'Pública', zona:'Remedios de Escalada', lat:-34.7240, lng:-58.3940 },
+  { nombre:'Universidad Nacional de Lomas de Zamora (UNLZ)', tipo:'Pública', zona:'Lomas de Zamora', lat:-34.7650, lng:-58.4160 },
+  { nombre:'Universidad Nacional de Luján (UNLu)', tipo:'Pública', zona:'Luján', lat:-34.5740, lng:-59.1200 },
+  { nombre:'Universidad Nacional de Moreno (UNM)', tipo:'Pública', zona:'Moreno', lat:-34.6500, lng:-58.7920 },
+  { nombre:'Universidad Nacional de Quilmes (UNQ)', tipo:'Pública', zona:'Bernal / Quilmes', lat:-34.7060, lng:-58.2780 },
+  { nombre:'Universidad Nacional de San Martín (UNSAM)', tipo:'Pública', zona:'San Martín', lat:-34.5760, lng:-58.5380 },
+  { nombre:'Universidad Nacional de Tres de Febrero (UNTREF)', tipo:'Pública', zona:'Caseros / Tres de Febrero', lat:-34.6030, lng:-58.5600 },
+  { nombre:'Universidad Nacional del Oeste (UNO)', tipo:'Pública', zona:'San Antonio de Padua', lat:-34.6660, lng:-58.6980 },
+  { nombre:'Universidad Nacional Guillermo Brown (UNaB)', tipo:'Pública', zona:'Adrogué / Almirante Brown', lat:-34.8000, lng:-58.3900 },
+  { nombre:'Universidad Nacional Raúl Scalabrini Ortiz (UNSO)', tipo:'Pública', zona:'San Isidro', lat:-34.4720, lng:-58.5270 },
+  { nombre:'Universidad Provincial de Ezeiza (UPE)', tipo:'Pública', zona:'Ezeiza', lat:-34.8520, lng:-58.5210 },
+  { nombre:'Universidad Provincial del Sudoeste (UPSO)', tipo:'Pública', zona:'Región sudoeste', lat:-38.7180, lng:-62.2660 },
+  { nombre:'Universidad Nacional de San Antonio de Areco (UNSAdA)', tipo:'Pública', zona:'San Antonio de Areco', lat:-34.2510, lng:-59.4710 },
+  { nombre:'Universidad Nacional del Noroeste de la Provincia de Buenos Aires (UNNOBA)', tipo:'Pública', zona:'Junín / Pergamino', lat:-34.5880, lng:-60.9460 },
+  { nombre:'Universidad Nacional del Centro de la Provincia de Buenos Aires (UNICEN)', tipo:'Pública', zona:'Tandil', lat:-37.3270, lng:-59.1360 },
+  { nombre:'Universidad Nacional de La Plata (UNLP)', tipo:'Pública', zona:'La Plata', lat:-34.9210, lng:-57.9540 },
+  { nombre:'Universidad Nacional de Mar del Plata (UNMdP)', tipo:'Pública', zona:'Mar del Plata', lat:-38.0050, lng:-57.5560 },
+  { nombre:'Universidad Nacional del Sur (UNS)', tipo:'Pública', zona:'Bahía Blanca', lat:-38.7180, lng:-62.2660 },
+  { nombre:'Universidad Católica de La Plata (UCALP)', tipo:'Privada', zona:'La Plata', lat:-34.9200, lng:-57.9550 },
+  { nombre:'Universidad de Morón (UM)', tipo:'Privada', zona:'Morón', lat:-34.6510, lng:-58.6200 },
+  { nombre:'Universidad Atlántida Argentina (UAA)', tipo:'Privada', zona:'Mar del Plata / Costa Atlántica', lat:-38.0050, lng:-57.5450 },
+  { nombre:'Universidad FASTA', tipo:'Privada', zona:'Mar del Plata', lat:-38.0000, lng:-57.5500 },
+  { nombre:'Universidad de San Andrés (UdeSA)', tipo:'Privada', zona:'Victoria', lat:-34.4110, lng:-58.6600 },
+  { nombre:'Universidad Austral', tipo:'Privada', zona:'Pilar', lat:-34.4350, lng:-58.8680 },
+];
+ 
+// --- Mapa Leaflet ---
+const mapa = L.map('mapa-universidades', { scrollWheelZoom:true }).setView([-34.75, -58.9], 7);
+ 
+const capaCallejero = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+  attribution: '&copy; <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap</a>'
+}).addTo(mapa);
+ 
+const capaSatelital = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
+  attribution: 'Tiles &copy; Esri'
+});
+ 
+const capaClaro = L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
+  attribution: '&copy; <a href="https://carto.com/attributions" target="_blank" rel="noopener">CARTO</a> &copy; OpenStreetMap'
+});
+ 
+L.control.layers({
+  'Callejero': capaCallejero,
+  'Satelital': capaSatelital,
+  'Claro': capaClaro
+}, {}, { position:'topright' }).addTo(mapa);
+ 
+L.control.zoom({ position:'bottomright' }).addTo(mapa);
+ 
+const marcadores = [];
+ 
+universidades.forEach((u, i) => {
+  const colorMarcador = u.tipo === 'Pública' ? '#7c3aed' : '#ec4899';
+  const icono = L.divIcon({
+    className: '',
+    html: `<div style="width:16px;height:16px;border-radius:50%;background:${colorMarcador};border:2px solid #fff;box-shadow:0 2px 6px rgba(0,0,0,.35);"></div>`,
+    iconSize: [16,16],
+    iconAnchor: [8,8]
+  });
+  const marcador = L.marker([u.lat, u.lng], { icon: icono }).addTo(mapa);
+  marcador.bindPopup(`
+    <div style="font-family:Inter,sans-serif; min-width:180px;">
+      <strong style="font-family:'Baloo 2',sans-serif; font-size:.95rem;">${u.nombre}</strong><br>
+      <span style="font-size:.8rem; color:#7c3aed;">${u.tipo}</span> · <span style="font-size:.8rem;">${u.zona}</span>
+    </div>
+  `);
+  marcadores.push(marcador);
+});
+ 
+// --- Lista lateral de universidades ---
+const listaUniversidades = document.getElementById('listaUniversidades');
+const buscadorUni = document.getElementById('buscadorUni');
+let filtroActivo = 'Todas';
+ 
+function renderizarLista(){
+  const termino = buscadorUni.value.trim().toLowerCase();
+  listaUniversidades.innerHTML = '';
+  universidades.forEach((u, i) => {
+    const coincideFiltro = filtroActivo === 'Todas' || u.tipo === filtroActivo;
+    const coincideBusqueda = u.nombre.toLowerCase().includes(termino) || u.zona.toLowerCase().includes(termino);
+    if(!coincideFiltro || !coincideBusqueda) return;
+ 
+    const item = document.createElement('button');
+    item.className = 'uni-item';
+    item.innerHTML = `
+      <span class="ui-nombre">${u.nombre}</span>
+      <span class="ui-meta">
+        <span class="tag-tipo ${u.tipo === 'Pública' ? 'tag-publica':'tag-privada'}">${u.tipo}</span>${u.zona}
+      </span>
+    `;
+    item.addEventListener('click', () => {
+      mapa.flyTo([u.lat, u.lng], 13, { duration: .9 });
+      setTimeout(() => marcadores[i].openPopup(), 700);
+      document.querySelectorAll('.uni-item').forEach(el => el.classList.remove('activo'));
+      item.classList.add('activo');
+      document.getElementById('mapa-universidades').scrollIntoView({ behavior:'smooth', block:'center' });
+    });
+    listaUniversidades.appendChild(item);
+  });
+}
+ 
+document.querySelectorAll('.filtro-chip').forEach(chip => {
+  chip.addEventListener('click', () => {
+    document.querySelectorAll('.filtro-chip').forEach(c => c.classList.remove('activo'));
+    chip.classList.add('activo');
+    filtroActivo = chip.dataset.filtro;
+    renderizarLista();
+  });
+});
+buscadorUni.addEventListener('input', renderizarLista);
+renderizarLista();
+ 
+/* =========================================================
+   SECCION 5: RECURSERO
+   ========================================================= */
+const recursos = [
+  { nombre:'Chicas en Tecnología', url:'https://chicasentecnologia.org/es_ar/' },
+  { nombre:'Club de Chicas Programadoras', url:'https://linktr.ee/chicasprogramadoras.club' },
+  { nombre:'Puerta 18', url:'https://docs.google.com/forms/d/e/1FAIpQLSevPR-72x56YQfnUFhQtJkikUr8UMH-NVaY721F71nx6UoZOg/viewform' },
+  { nombre:'Capacitar - Gobierno Nacional', url:'https://www.argentina.gob.ar/economia/capacitar/oferta-formativa/rutas-de-aprendizaje-capacitar' },
+  { nombre:'Aprendizaje Virtual - Gobierno Nacional', url:'https://www.argentina.gob.ar/jefatura/innovacion-ciencia-y-tecnologia/tics/pav' },
+  { nombre:'Talento Tech', url:'https://talentotech.bue.edu.ar/home' },
+  { nombre:'Santander Open Academy', url:'https://app.santanderopenacademy.com/es/program/search?resourceType=SOA_COURSE&resourceType=LMS_COURSE' },
+  { nombre:'Personal - Digitalers', url:'https://institucional.personal.com.ar/digitalers' },
+  { nombre:'Platzi', url:'https://platzi.com/cursos/programacion-basica/' },
+  { nombre:'Coursera', url:'https://www.coursera.org/courses?query=free' },
+  { nombre:'Soy Henry', url:'https://www.soyhenry.com/curso-javascript' },
+  { nombre:'Free Code Camp', url:'https://www.freecodecamp.org/espanol/' },
+  { nombre:'Coderhouse', url:'https://www.coderhouse.com/ar/cursos-gratis' },
+  { nombre:'Udemy', url:'https://www.udemy.com/es/courses/free/?srsltid=AU7gw4W_Bi6REaaN_Z-QlR49n2KzNvUOxRk1Nj4RnZwshOI1iA3Z6I-b' },
+  { nombre:'Google Activate', url:'https://grow.google/intl/es/courses-and-tools/' },
+  { nombre:'Fundación Media Pila', url:'https://mediapila.org.ar/cursos/' },
+  { nombre:'Fundación Pescar', url:'https://www.pescar.org.ar/' },
+  { nombre:'Fundación Empujar', url:'https://linktr.ee/empujar' },
+  { nombre:'Fundación Forge', url:'https://fforge.org/en/programs/ar-ford?utm_source=ig&utm_medium=social&utm_content=link_in_bio&fbclid=PAcGRvZgJleHRuA2FlbQIxMQBzcnRjBmFwcF9pZA85MzY2MTk3NDMzOTI0NTkAAaeB5FLfT2v-gtDIh2WnIUhHaeLb0FcSPMzdM8-rxtTlqKbl3A9upYshumuaEA_aem_YaXNzIoNe9TsA460b3v8kQ' },
+  { nombre:'Fundación YPF', url:'https://fundacionypf.org/' },
+  { nombre:'Formación CILSA', url:'https://www.cilsa.org/oportunidades-de-formacion/' },
+];
+ 
+const grillaRecursos = document.getElementById('grillaRecursos');
+recursos.forEach(r => {
+  const iniciales = r.nombre.split(' ').filter(p => p.length > 2).slice(0,2).map(p => p[0]).join('').toUpperCase() || r.nombre[0];
+  const a = document.createElement('a');
+  a.className = 'tarjeta-recurso';
+  a.href = r.url;
+  a.target = '_blank';
+  a.rel = 'noopener';
+  a.innerHTML = `
+    <div class="tr-icono">${iniciales}</div>
+    <div class="tr-nombre">${r.nombre}</div>
+    <div class="tr-link">Ir al sitio ↗</div>
+  `;
+  grillaRecursos.appendChild(a);
+});
+</script>
+</body>
+</html>
